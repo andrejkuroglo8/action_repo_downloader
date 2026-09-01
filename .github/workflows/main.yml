@@ -6,11 +6,11 @@ on:
       SYNC_URL:
         description: 'SYNC_URL'
         required: true
-        default: 'https://gitlab.com/OrangeFox/sync.git'
+        default: 'https://github.com/PitchBlackRecoveryProject/manifest_pb'
       MANIFEST_BRANCH:
         description: 'MANIFEST_BRANCH'
         required: true
-        default: '12.1'
+        default: 'android-12.1'
 
 jobs:
   build:
@@ -41,11 +41,9 @@ jobs:
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
             linux-modules-extra-$(uname -r) \
             git python3 tar aria2
-        git clone https://gitlab.com/OrangeFox/misc/scripts
-        cd scripts
-        sudo bash setup/android_build_env.sh
-        sed -i 's/cd -/cd ../g' setup/install_android_sdk.sh
-        sudo bash setup/install_android_sdk.sh
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       
     - name: Setup SSH Keys
@@ -57,19 +55,19 @@ jobs:
 
     - name: Sync OrangeFox sources and minimal manifest
       run: |
-        cd ${{ steps.pwd.outputs.workspace-folder }}
-        git clone ${{ github.event.inputs.SYNC_URL }}
-        cd sync
-        ./orangefox_sync.sh --branch ${{ github.event.inputs.MANIFEST_BRANCH }} --path ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        mkdir pbrp
+        cd pbrp
+        repo init --depth=1 -u ${{ inputs.SYNC_URL }} -b ${{ inputs.MANIFEST_BRANCH }}
+        repo sync --force-sync -j$(npoc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Zip Synced sources
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}
-        tar -zcv -f ./fox_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        tar -zcv -f ./prbp_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz pbrp
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v7
       with:
-        name: sync-twrp
-        path: ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz
+        name: sync-pbrp
+        path: ${{ steps.pwd.outputs.workspace-folder }}/pbrp_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz
