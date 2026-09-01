@@ -56,12 +56,12 @@ jobs:
           ssh-private-key: |
             ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Sync OrangeFox sources and minimal manifest
+    - name: Syncing sources with minimal manifest
       run: |
         mkdir sync
         cd sync
         repo init --depth=1 -u ${{ inputs.SYNC_URL }} -b ${{ inputs.MANIFEST_BRANCH }}
-        repo sync --force-sync -j$(npoc --all)
+        repo sync --force-sync -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Zip Synced sources
