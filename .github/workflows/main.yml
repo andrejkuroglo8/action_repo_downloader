@@ -44,7 +44,7 @@ jobs:
             linux-modules-extra-$(uname -r) \
             git python3 tar aria2
         mkdir bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo >> ~/bin/repo
+        git clone https://github.com/GerritCodeReview/git-repo ~/bin
         chmod a+x ~/bin/repo
         sudo ln -sf ~/bin/repo /usr/bin/repo
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
