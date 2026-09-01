@@ -64,7 +64,7 @@ jobs:
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Upload Artifact
-      uses: actions/upload-artifacts@7
+      uses: actions/upload-artifact@7
       with:
         name: sync-twrp
         path: ${{ steps.pwd.outputs.workspace-folder }}
