@@ -33,6 +33,8 @@ jobs:
         mkdir workspace
         cd workspace
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
+        git config --global user.name "${GITHUB_ACTOR}"
+        git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
       id: pwd
       
     - name: Prepare the build environment
@@ -56,8 +58,8 @@ jobs:
 
     - name: Sync OrangeFox sources and minimal manifest
       run: |
-        mkdir pbrp
-        cd pbrp
+        mkdir sync
+        cd sync
         repo init --depth=1 -u ${{ inputs.SYNC_URL }} -b ${{ inputs.MANIFEST_BRANCH }}
         repo sync --force-sync -j$(npoc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
@@ -65,10 +67,10 @@ jobs:
     - name: Zip Synced sources
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}
-        tar -zcv -f ./prbp_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz pbrp
+        tar -zcv -f ./sync_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz sync
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v7
       with:
-        name: sync-pbrp
-        path: ${{ steps.pwd.outputs.workspace-folder }}/pbrp_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz
+        name: sync-min
+        path: ${{ steps.pwd.outputs.workspace-folder }}/sync_${{ github.event.inputs.MANIFEST_BRANCH }}.tar.gz
